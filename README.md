@@ -59,6 +59,8 @@ Unlike standard directories, CampScout leverages **Natural Language Processing (
 
 ## 📸 Screenshots
 <img width="1919" height="970" alt="Screenshot 2025-12-11 140814" src="https://github.com/user-attachments/assets/7bd2cbf9-4198-472f-8907-2d83c4bbb3f6" />
-<img width="1920" height="1080" alt="Screenshot 2025-12-11 140831" src="https://github.com/user-attachments/assets/07b1e47f-92f2-4c3a-8e97-f45f4c5a23dd" />
+
+<img width="1920" height="966" alt="Screenshot 2025-12-11 140831" src="https://github.com/user-attachments/assets/41537a67-6d3c-46f0-9288-121ff52b0e73" />
+
 <img width="1919" height="962" alt="Screenshot 2025-12-11 140933" src="https://github.com/user-attachments/assets/23f8a51e-e62d-4ce4-a6f2-8857ec503e8c" />
 
