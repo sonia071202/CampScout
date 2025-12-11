@@ -1,4 +1,5 @@
- CampScout ⛺️
+
+CampScout ⛺️ - live on : https://campscout-awde.onrender.com
 
 **CampScout** is a full-stack campground discovery platform featuring an **AI-powered recommendation engine**. Users can create accounts, list campgrounds, review locations, and explore destinations using interactive cluster maps.
 
