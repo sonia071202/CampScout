@@ -1,5 +1,7 @@
 
+const natural = require('natural');
 const Campground = require('../models/campground');
+
 // const mbxGeocoding = require("@mapbox/mapbox-sdk/services/geocoding");
 // const mapBoxToken = process.env.MAPBOX_TOKEN;
 // const geocoder = mbxGeocoding({ accessToken: mapBoxToken });
@@ -9,7 +11,9 @@ const { cloudinary } = require("../cloudinary");
 
 
 module.exports.index = async (req, res) => {
-    const campgrounds = await Campground.find({});
+    // const campgrounds = await Campground.find({});
+    const campgrounds = await Campground.find({}).sort({ _id: -1 });
+
     res.render('campgrounds/index', { campgrounds })
 }
 
@@ -42,18 +46,69 @@ module.exports.createCampground = async (req, res, next) => {
     res.redirect(`/campgrounds/${campground._id}`)
 }
 
-module.exports.showCampground = async (req, res,) => {
-    const campground = await Campground.findById(req.params.id).populate({
-        path: 'reviews',
-        populate: {
-            path: 'author'
-        }
-    }).populate('author');
+// module.exports.showCampground = async (req, res,) => {
+//     const campground = await Campground.findById(req.params.id).populate({
+//         path: 'reviews',
+//         populate: {
+//             path: 'author'
+//         }
+//     }).populate('author');
+//     if (!campground) {
+//         req.flash('error', 'Cannot find that campground!');
+//         return res.redirect('/campgrounds');
+//     }
+//     res.render('campgrounds/show', { campground });
+// }
+
+module.exports.showCampground = async (req, res) => {
+    // 1. Find the current campground
+    const campground = await Campground.findById(req.params.id)
+        .populate({
+            path: 'reviews',
+            populate: { path: 'author' }
+        })
+        .populate('author');
+
     if (!campground) {
         req.flash('error', 'Cannot find that campground!');
         return res.redirect('/campgrounds');
     }
-    res.render('campgrounds/show', { campground });
+
+    // 2. AI LOGIC: Fetch other campgrounds to compare
+    // We exclude the current one using $ne (Not Equal)
+    const allCampgrounds = await Campground.find({ _id: { $ne: req.params.id } });
+
+    const TfIdf = natural.TfIdf;
+    const tfidf = new TfIdf();
+
+    // Add current camp description as the reference (Index 0)
+    tfidf.addDocument(campground.description);
+
+    // Add all other campgrounds
+    allCampgrounds.forEach(camp => {
+        tfidf.addDocument(camp.description);
+    });
+
+    const recommendations = [];
+    
+    // Calculate scores
+    tfidf.tfidfs(campground.description, function (i, measure) {
+        if (i > 0) { // Skip index 0 (current camp)
+            recommendations.push({
+                camp: allCampgrounds[i - 1],
+                score: measure
+            });
+        }
+    });
+
+    // Sort by highest score and take top 3
+    const topPicks = recommendations
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 3)
+        .map(item => item.camp);
+
+    // 3. Render the view with the new 'topPicks' data
+    res.render('campgrounds/show', { campground, topPicks });
 }
 
 module.exports.renderEditForm = async (req, res) => {
